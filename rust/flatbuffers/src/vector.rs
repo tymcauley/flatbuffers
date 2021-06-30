@@ -18,7 +18,7 @@ use std::iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator};
 use std::marker::PhantomData;
 use std::mem::size_of;
 use std::slice::from_raw_parts;
-use std::str::from_utf8_unchecked;
+use std::str;
 
 use endian_scalar::read_scalar_at;
 #[cfg(target_endian = "little")]
@@ -122,7 +122,7 @@ impl<'a> Follow<'a> for &'a str {
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         let len = read_scalar_at::<UOffsetT>(&buf, loc) as usize;
         let slice = &buf[loc + SIZE_UOFFSET..loc + SIZE_UOFFSET + len];
-        unsafe { from_utf8_unchecked(slice) }
+        str::from_utf8(slice).unwrap_or("<INVALID UTF-8>")
     }
 }
 
